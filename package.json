@@ -1,0 +1,22 @@
+{
+  "name": "Fun_BCD",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/main.ts",
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "build:dev": "concurrently \"tsc --watch\" \"tsc-alias -w\"",
+    "start": "nodemon src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.16.1",
+  "devDependencies": {
+    "@types/express": "^5.0.6"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
