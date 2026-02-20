@@ -7,16 +7,11 @@
     "build": "tsc && tsc-alias",
     "build:dev": "concurrently \"tsc --watch\" \"tsc-alias -w\"",
     "start": "nodemon src/main.js",
+    "start:prod": "node src/main.js"
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.16.1",
-  "devDependencies": {
-    "@types/express": "^5.0.6"
-  },
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+  "packageManager": "pnpm@10.16.1"
 }
