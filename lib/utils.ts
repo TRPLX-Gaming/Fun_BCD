@@ -1,10 +1,22 @@
 // imports
-import {DataTypeError} from './errors'
+import {DataTypeError, EncodingError} from './errors'
 
 // util func 
 const isOperationValid = async (val:any | null): Promise<boolean> => {
   return val !== null ? true : false
 }
+
+const isStringBinary = async (binStr:string | number):Promise<boolean> => {
+  if(typeof binStr === 'number') binStr = binStr.toString()
+  let ctr = 0
+  for(let i=0;i<binStr.length;i++) {
+    if(binStr[i] === '0' || binStr[i] === '1') {
+      ctr++
+    }
+  }
+  return (ctr === binStr.length) ? true : false
+}
+
 export default isOperationValid
 
 // contains all conversion functions
@@ -14,6 +26,11 @@ export const applyOneComp = async (binStr:string):Promise<string | null> => {
   let result:string[] = []
   if(typeof binStr !== 'string') {
     throw new DataTypeError(typeof binStr)
+    return null
+  }
+  
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
     return null
   }
   
@@ -34,6 +51,14 @@ export const applyOneComp = async (binStr:string):Promise<string | null> => {
 
 // 2's complement(no need to convert back)
 export const applyTwoComp = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
+    return null
+  }
   let oneComp = await applyOneComp(binStr)
   if(await isOperationValid(oneComp)) {
     let len:number = oneComp.length 
@@ -79,6 +104,10 @@ export const applyGrayCode = async (binStr:string):Promise<string | null> => {
     throw new DataTypeError(typeof binStr)
     return null
   }
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
+    return null
+  }
   let arr = binStr.split(''),
     result = []
   result.push('1')
@@ -90,13 +119,178 @@ export const applyGrayCode = async (binStr:string):Promise<string | null> => {
   }
   return result.join('')
 }
-
 // from
 export const removeGrayCode = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
+    return null
+  }
   let arr = binStr.split(''),
     result = [],
     temp = '1'
   
+  result.push('1')
+  if(temp !== arr[1]) result.push('1')
+  else {
+    result.push('0')
+    temp = '0'
+  }
+  for(let i=2;i<arr.length;i++) {
+    if(temp !== arr[i]) {
+      result.push('1')
+      temp = '1'
+    } else {
+      result.push('0')
+      temp = '0'
+    }
+  }
+  return result.join('')
+}
+
+// 8421 code 
+// to
+export const applyBCD = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  
+  let res = ''
+  for(let i=0;i<binStr.length;i++) {
+    let digit = binStr[i] - '0',
+      block = ''
+    for(let weight=8;weight>=1;weight/=2) {
+      if(digit >= weight) {
+        block += '1'
+        digit -= weight
+      } else block += '0'
+    }
+    res += block + (i < binStr.length-1 ? ' ' : '')
+  }
+  return res
+}
+// from 
+export const removeBCD = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  binStr = binStr.replace(/\s/g,'')
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
+    return null
+  }
+
+  let res:string = ''
+  for(let i=0;i<binStr.length;i+=4) {
+    let n1 = binStr[i] - '0'
+    let n2 = binStr[i+1] - '0'
+    let n3 = binStr[i+2] - '0'
+    let n4 = binStr[i+3] - '0'
+    let val = (n1 * 8) + (n2 * 4) + (n3 * 2) + (n4 * 1)
+    res += `${val}`
+  }
+  return res
+}
+
+// excess 3 code 
+// to 
+export const applyX3 = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  
+  let res = ''
+  for(let i=0;i<binStr.length;i++) {
+    let digit = binStr[i] - '0',
+      block = ''
+    digit += 3
+    for(let weight=8;weight>=1;weight/=2) {
+      if(digit >= weight) {
+        block += '1'
+        digit -= weight
+      } else block += '0'
+    }
+    res += block + (i < binStr.length-1 ? ' ' : '')
+  }
+  return res
+  
+}
+// from 
+export const removeX3 = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  binStr = binStr.replace(/\s/g,'')
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
+    return null
+  }
+  
+  let res:string = ''
+  for(let i=0;i<binStr.length;i+=4) {
+    let n1 = binStr[i] - '0'
+    let n2 = binStr[i+1] - '0'
+    let n3 = binStr[i+2] - '0'
+    let n4 = binStr[i+3] - '0'
+    let val = (n1 * 8) + (n2 * 4) + (n3 * 2) + (n4 * 1)
+    res += `${val-3}`
+  }
+  return res
   
 }
 
+// 2421 code 
+// to 
+export const applyAlken = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  
+  let res = ''
+  for(let i=0;i<binStr.length;i++) {
+    let digit = binStr[i] - '0'
+    let block = ''
+    if(digit > 4) {
+      digit = 9 - digit
+      block = await applyBCD(`${digit}`)
+      block = await applyOneComp(block)
+      res += block + (i < binStr.length-1 ? ' ' : '')
+    } else {
+      block = await applyBCD(`${digit}`)
+      res += block + (i < binStr.length-1 ? ' ' : '')
+    }
+  }
+  return res
+}
+
+// from 
+export const removeAlken = async (binStr:string):Promise<string | null> => {
+  if(typeof binStr !== 'string') {
+    throw new DataTypeError(typeof binStr)
+    return null
+  }
+  binStr = binStr.replace(/\s/g,'')
+  if(! await isStringBinary(binStr)) {
+    throw new EncodingError('invalid number base, expected binary or base 2')
+    return null
+  }
+
+  let res:string = ''
+  for(let i=0;i<binStr.length;i+=4) {
+    let n1 = binStr[i] - '0'
+    let n2 = binStr[i+1] - '0'
+    let n3 = binStr[i+2] - '0'
+    let n4 = binStr[i+3] - '0'
+    let val = (n1 * 2) + (n2 * 4) + (n3 * 2) + (n4 * 1)
+    res += `${val}`
+  }
+  return res
+}

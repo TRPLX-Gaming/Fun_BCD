@@ -75,10 +75,43 @@ inRouter.post('/gray-code', async (req, res) => {
         data: null
     });
 });
-inRouter.get('/2421', async (req, res) => {
+inRouter.post('/2421', async (req, res) => {
+    const { data } = req.body || {};
+    const result = await (0, utils_1.applyAlken)(data);
+    if (await (0, utils_1.default)(result)) {
+        res.status(201).json({
+            data: result
+        });
+        return;
+    }
+    res.status(500).json({
+        data: null
+    });
 });
-inRouter.get('/8421', async (req, res) => {
+inRouter.post('/8421', async (req, res) => {
+    const { data } = req.body || {};
+    const result = await (0, utils_1.applyBCD)(data);
+    if (await (0, utils_1.default)(result)) {
+        res.status(201).json({
+            data: result
+        });
+        return;
+    }
+    res.status(500).json({
+        data: null
+    });
 });
-inRouter.get('/excess-3', async (req, res) => {
+inRouter.post('/excess-3', async (req, res) => {
+    const { data } = req.body || {};
+    const result = await (0, utils_1.applyX3)(data);
+    if (await (0, utils_1.default)(result)) {
+        res.status(201).json({
+            data: result
+        });
+        return;
+    }
+    res.status(500).json({
+        data: null
+    });
 });
 exports.default = inRouter;

@@ -1,24 +1,67 @@
 import {Router, Request, Response} from 'express'
 import isOperationValid, {
-  removeGrayCode
+  removeGrayCode,
+  removeBCD,
+  removeX3,
+  removeAlken
 } from './utils'
 
 const outRouter = Router()
 
-outRouter.post('/gray-code',(req:Request, res:Response) => {
-  
+outRouter.post('/gray-code',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await removeGrayCode(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
-outRouter.get('/2421',(req:Request, res:Response) => {
-  
+outRouter.post('/2421',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await removeAlken(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
-outRouter.get('/8421',(req:Request, res:Response) => {
-  
+outRouter.post('/8421',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await removeBCD(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
-outRouter.get('/excess-3',(req:Request, res:Response) => {
-  
+outRouter.post('/excess-3',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await removeX3(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
 export default outRouter

@@ -2,7 +2,10 @@ import {Router, Request, Response} from 'express'
 import isOperationValid, {
   applyOneComp,
   applyTwoComp,
-  applyGrayCode
+  applyGrayCode,
+  applyBCD,
+  applyX3,
+  applyAlken
 } from './utils'
 
 const inRouter = Router()
@@ -49,16 +52,46 @@ inRouter.post('/gray-code',async (req:Request, res:Response) => {
   })
 })
 
-inRouter.get('/2421',async (req:Request, res:Response) => {
-  
+inRouter.post('/2421',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await applyAlken(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
-inRouter.get('/8421',async (req:Request, res:Response) => {
-  
+inRouter.post('/8421',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await applyBCD(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
-inRouter.get('/excess-3',async (req:Request, res:Response) => {
-  
+inRouter.post('/excess-3',async (req:Request, res:Response) => {
+  const {data} = req.body || {}
+  const result = await applyX3(data)
+  if(await isOperationValid(result)) {
+    res.status(201).json({
+      data:result
+    })
+    return
+  }
+  res.status(500).json({
+    data:null
+  })
 })
 
 export default inRouter
